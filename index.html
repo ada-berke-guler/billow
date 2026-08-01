@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#e06b4f" />
+  <meta name="description" content="Abonelik ve harcama takibi" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/favicon-32.png" type="image/png" sizes="32x32" />
+  <link rel="icon" href="icons/favicon-48.png" type="image/png" sizes="48x48" />
+  <link rel="apple-touch-icon" href="icons/favicon-180.png" />
+  <title>Billow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("billow.theme") || localStorage.getItem("abone.theme");
+        if (t === "light" || t === "sunger") t = "duotone";
+        if (t === "dark" || t === "sunger-dark") t = "duotone-dark";
+        document.documentElement.setAttribute(
+          "data-theme",
+          t === "duotone-dark" ? "duotone-dark" : "duotone"
+        );
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "duotone");
+      }
+    })();
+  </script>
+</head>
+<body class="is-booting">
+  <div class="atmosphere" aria-hidden="true"></div>
+
+  <div class="onboarding" id="onboarding" role="dialog" aria-modal="true" aria-labelledby="onboardingBrand">
+    <div class="onboarding-stage" id="onboardingSplash">
+      <h1 class="onboarding-brand" id="onboardingBrand" aria-label="Billow">
+        <span class="onboarding-type" id="onboardingType" aria-hidden="true"></span><span class="onboarding-caret" aria-hidden="true"></span>
+      </h1>
+      <p class="onboarding-tagline" id="onboardingTagline">Abonelik ve harcama takibi</p>
+    </div>
+  </div>
+
+  <div class="app" id="appShell" hidden>
+    <div id="viewCalendar">
+      <header class="topbar">
+        <div class="brand-block">
+          <div class="brand-row">
+            <p class="brand">Billow</p>
+            <div class="mode-dots" role="group" aria-label="Mod seçimi">
+              <button type="button" class="mode-dot is-active" id="modeDotSubs" data-mode="subs" aria-label="Abonelikler" title="Abonelikler" aria-pressed="true"></button>
+              <button type="button" class="mode-dot" id="modeDotExpenses" data-mode="expenses" aria-label="Harcamalar" title="Harcamalar" aria-pressed="false"></button>
+            </div>
+          </div>
+        </div>
+
+        <nav class="month-nav" aria-label="Ay seçimi">
+          <button type="button" class="nav-btn" id="prevMonth" aria-label="Önceki ay">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <h1 class="month-title" id="monthTitle">Ocak 2026</h1>
+          <button type="button" class="nav-btn" id="nextMonth" aria-label="Sonraki ay">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </nav>
+
+        <div class="topbar-actions">
+          <button type="button" class="nav-btn theme-btn" id="themeBtn" aria-label="Gece moduna geç" title="Tema">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/></svg>
+          </button>
+          <button type="button" class="btn-ghost" id="yearBtn">Yıllık özet</button>
+          <button type="button" class="btn-primary" id="addBtn">
+            <span class="btn-plus" aria-hidden="true">+</span>
+            <span id="addBtnLabel">Abonelik ekle</span>
+          </button>
+          <button type="button" class="nav-btn help-btn" id="helpBtn" aria-label="Rehber" title="Rehber">?</button>
+          <button type="button" class="nav-btn" id="exportBtn" aria-label="Yedek indir" title="Yedek indir">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          </button>
+          <button type="button" class="nav-btn" id="importBtn" aria-label="Yedek yükle" title="Yedek yükle">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+          </button>
+          <input type="file" id="importFile" accept="application/json,.json" hidden />
+        </div>
+      </header>
+
+      <main class="layout" id="mainLayout">
+        <section class="calendar-panel" aria-labelledby="monthTitle">
+          <div class="month-summary" id="monthSummary">
+            <div class="summary-item">
+              <span class="summary-label">Bu ay</span>
+              <span class="summary-value" id="monthTotal">₺0</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label" id="monthCountLabel">Abonelik</span>
+              <span class="summary-value" id="monthCount">0</span>
+            </div>
+          </div>
+
+          <div class="expense-insights" id="expenseInsights" hidden>
+            <div class="insight-actions">
+              <button type="button" class="btn-ghost insight-btn" id="weeklyPieBtn">Haftalık özet</button>
+              <button type="button" class="btn-ghost insight-btn" id="openYearFromInsights">Yıllık özet</button>
+            </div>
+            <div class="pie-panel" id="weeklyPiePanel" hidden>
+              <div class="pie-panel-head">
+                <p class="pie-panel-title" id="weeklyPieTitle">Bu hafta</p>
+                <button type="button" class="icon-btn pie-close" id="weeklyPieClose" aria-label="Haftalık özeti kapat">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div class="pie-panel-body" id="weeklyPieBody"></div>
+            </div>
+          </div>
+
+          <div class="calendar-block" id="calendarBlock">
+            <div class="weekday-row" aria-hidden="true">
+              <span>Pzt</span><span>Sal</span><span>Çar</span><span>Per</span><span>Cum</span><span>Cmt</span><span>Paz</span>
+            </div>
+            <div class="calendar-grid" id="calendarGrid" role="grid" aria-label="Aylık takvim"></div>
+          </div>
+
+          <div class="day-detail" id="dayDetail" hidden>
+            <div class="day-detail-head">
+              <div>
+                <h2 class="day-detail-title" id="dayDetailTitle">Gün detayı</h2>
+                <p class="day-detail-sub" id="dayDetailSub"></p>
+              </div>
+              <button type="button" class="icon-btn" id="closeDayDetail" aria-label="Detayı kapat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="day-detail-list" id="dayDetailList"></div>
+          </div>
+        </section>
+
+        <aside class="sidebar" aria-label="Liste">
+          <div class="sidebar-head">
+            <h2 id="sidebarTitle">Abonelikler</h2>
+            <p class="sidebar-hint" id="sidebarHint">Ödeme gününe göre</p>
+          </div>
+          <div class="sub-list" id="subList"></div>
+        </aside>
+      </main>
+    </div>
+
+    <div id="viewYear" hidden>
+      <header class="topbar year-topbar">
+        <div class="brand-block">
+          <button type="button" class="btn-ghost back-btn" id="backToCalendar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            Takvime dön
+          </button>
+          <p class="brand year-brand" id="yearBrand">Yıllık özet</p>
+          <p class="brand-sub" id="yearSub">Yıllık abonelik harcaması</p>
+        </div>
+        <button type="button" class="nav-btn theme-btn year-theme-btn" id="themeBtnYear" aria-label="Gece moduna geç" title="Tema">
+          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 0 1 9.5 3 7 7 0 1 0 21 14.5z"/></svg>
+        </button>
+      </header>
+
+      <section class="year-panel" aria-labelledby="yearHeading">
+        <h2 id="yearHeading" class="sr-only">Yıllık özet</h2>
+
+        <div class="year-hero">
+          <div class="summary-item">
+            <span class="summary-label">Yıllık toplam</span>
+            <span class="summary-value year-total" id="yearTotal">₺0</span>
+          </div>
+          <div class="year-highlight" id="yearHighlight">
+            <span class="summary-label">En pahalı ay</span>
+            <span class="year-highlight-text" id="yearCostliest">—</span>
+          </div>
+        </div>
+
+        <div class="pie-panel year-pie-panel" id="yearPiePanel" hidden>
+          <p class="pie-panel-title">Kategori dağılımı</p>
+          <div class="pie-panel-body" id="yearPieBody"></div>
+        </div>
+
+        <div class="year-bars" id="yearBars" role="list" aria-label="Aylık toplamlar"></div>
+      </section>
+    </div>
+  </div>
+
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h2 id="modalTitle">Yeni abonelik</h2>
+        <button type="button" class="icon-btn" id="closeModal" aria-label="Kapat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="subForm" class="modal-form">
+        <input type="hidden" id="editId" />
+
+        <label class="field">
+          <span>İsim</span>
+          <input type="text" id="subName" name="name" placeholder="Netflix, Spotify…" required maxlength="40" autocomplete="off" />
+        </label>
+
+        <div class="field">
+          <span>Tutar (₺)</span>
+          <input type="number" id="subAmount" name="amount" placeholder="149.90" min="0" step="0.01" required />
+          <label class="check-option">
+            <input type="checkbox" id="amountUnknown" />
+            <span>Tutar belli değil <em>(elektrik, su…)</em></span>
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Ödeme günü</span>
+          <input type="number" id="subDay" name="day" placeholder="1–31" min="1" max="31" required />
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span>Ödeme sıklığı</span>
+            <select id="subInterval" name="interval">
+              <option value="1">Her ay</option>
+              <option value="2">2 ayda bir</option>
+              <option value="3">3 ayda bir</option>
+              <option value="6">6 ayda bir</option>
+              <option value="12">Yılda bir</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Başlangıç ayı</span>
+            <select id="subStartMonth" name="startMonth"></select>
+          </label>
+        </div>
+
+        <label class="check-option">
+          <input type="checkbox" id="hasEnd" />
+          <span>Bitiş tarihi var <em>(süre sınırlı)</em></span>
+        </label>
+
+        <div class="field-row" id="endMonthWrap" hidden>
+          <label class="field">
+            <span>Bitiş ayı</span>
+            <select id="subEndMonth" name="endMonth"></select>
+          </label>
+          <label class="field">
+            <span>Bitiş yılı</span>
+            <select id="subEndYear" name="endYear"></select>
+          </label>
+        </div>
+
+        <label class="field" id="monthAmountWrap" hidden>
+          <span id="monthAmountLabel">Bu ayın tutarı (₺)</span>
+          <input type="number" id="subMonthAmount" name="monthAmount" placeholder="Örn. 420" min="0" step="0.01" />
+        </label>
+
+        <div class="field color-field">
+          <span id="colorLabel">Renk</span>
+          <div class="color-swatches" id="colorSwatches" role="radiogroup" aria-labelledby="colorLabel"></div>
+          <input type="hidden" id="subColor" name="color" required />
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-danger" id="deleteBtn" hidden>İptal et</button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn-ghost" id="cancelBtn">Vazgeç</button>
+            <button type="submit" class="btn-primary" id="saveBtn">Kaydet</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="modal-backdrop" id="expenseBackdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="expenseTitle">
+      <div class="modal-head">
+        <h2 id="expenseTitle">Yeni harcama</h2>
+        <button type="button" class="icon-btn" id="closeExpense" aria-label="Kapat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="expenseForm" class="modal-form">
+        <input type="hidden" id="expenseEditId" />
+
+        <label class="field">
+          <span>Tutar (₺)</span>
+          <input type="number" id="expenseAmount" name="amount" placeholder="85.50" min="0" step="0.01" required />
+        </label>
+
+        <label class="field">
+          <span>Kategori</span>
+          <select id="expenseCategory" name="category" required></select>
+        </label>
+
+        <label class="field">
+          <span>Tarih</span>
+          <input type="date" id="expenseDate" name="date" required />
+        </label>
+
+        <label class="field">
+          <span>Not <em style="font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;color:var(--ink-faint)">(isteğe bağlı)</em></span>
+          <input type="text" id="expenseNote" name="note" placeholder="Market, taksi…" maxlength="60" autocomplete="off" />
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-danger" id="expenseDeleteBtn" hidden>Sil</button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn-ghost" id="expenseCancelBtn">Vazgeç</button>
+            <button type="submit" class="btn-primary">Kaydet</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="yearPromptBackdrop" hidden>
+    <div class="modal year-prompt-modal" role="dialog" aria-modal="true" aria-labelledby="yearPromptTitle">
+      <div class="modal-head">
+        <h2 id="yearPromptTitle">Yeni yıl</h2>
+        <button type="button" class="icon-btn" id="yearPromptClose" aria-label="Kapat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <p class="year-prompt-text" id="yearPromptText">Sonraki yılın takvimini yüklemek ister misin?</p>
+      <div class="modal-actions">
+        <div class="modal-actions-right">
+          <button type="button" class="btn-ghost" id="yearPromptNo">Hayır</button>
+          <button type="button" class="btn-primary" id="yearPromptYes">Evet, yükle</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="year-loader" id="yearLoader" hidden aria-live="polite" aria-busy="true">
+    <div class="year-loader-card">
+      <div class="year-loader-spinner" aria-hidden="true"></div>
+      <p class="year-loader-text" id="yearLoaderText">Yıl yükleniyor…</p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <div class="tour" id="tour" hidden>
+    <div class="tour-blocker" id="tourBlocker" aria-hidden="true"></div>
+    <div class="tour-spotlight" id="tourSpotlight" aria-hidden="true"></div>
+    <div class="tour-bubble" id="tourBubble" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+      <p class="tour-step" id="tourStepLabel">1 / 7</p>
+      <p class="tour-title" id="tourTitle">Başlık</p>
+      <p class="tour-text" id="tourText"></p>
+      <div class="tour-actions">
+        <button type="button" class="btn-ghost tour-skip" id="tourSkip">Geç</button>
+        <button type="button" class="btn-primary tour-next" id="tourNext">İleri</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
