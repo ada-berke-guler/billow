@@ -2,7 +2,7 @@
 
 Abonelik ve harcama takibi için sade bir web uygulaması.
 
-**Demo:** [billow-nu.vercel.app](https://billow-nu.vercel.app)
+**Demo:** [billow-money.vercel.app](https://billow-money.vercel.app)
 
 ## Features
 
